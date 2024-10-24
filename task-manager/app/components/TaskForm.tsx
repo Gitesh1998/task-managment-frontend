@@ -11,14 +11,14 @@ type Props = {
 export default function TaskForm({ onSubmit, initialTask }: Props) {
   const [title, setTitle] = useState(initialTask?.title || '');
   const [description, setDescription] = useState(initialTask?.description || '');
-  const [status, setStatus] = useState<Task['status']>(initialTask?.status || 'Pending');
+  const [status, setStatus] = useState<Task['status']>(initialTask?.status || 'pending');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ title, description, status });
     setTitle('');
     setDescription('');
-    setStatus('Pending');
+    setStatus('pending');
   };
 
   return (
@@ -43,9 +43,9 @@ export default function TaskForm({ onSubmit, initialTask }: Props) {
         onChange={(e) => setStatus(e.target.value as Task['status'])}
         className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <option value="Pending">Pending</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
       </select>
       <button type="submit" className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
         {initialTask ? 'Update Task' : 'Add Task'}

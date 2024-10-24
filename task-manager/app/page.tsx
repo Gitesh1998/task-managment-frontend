@@ -1,26 +1,102 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task } from './types/task';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
-import { v4 as uuidv4 } from 'uuid';
+
+const API_URL = 'http://localhost:3000/api/tasks'; // Backend API URL
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]); // Initialize tasks as an empty array
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const addTask = (task: Omit<Task, 'id'>) => {
-    setTasks([...tasks, { ...task, id: uuidv4() }]);
+  // Fetch tasks from the backend on component mount
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // GET: Fetch all tasks
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+      const data = await response.json();
+      console.log('Fetched tasks:', data.docs); // Debugging the API response
+      setTasks(Array.isArray(data.docs) ? data.docs : []); // Ensure data is an array
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      setTasks([]); // Set to empty array on error
+    }
   };
 
-  const updateTask = (updatedTask: Task) => {
-    setTasks(tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
-    setEditingTask(null);
+  // POST: Add a new task
+  const addTask = async (task: Omit<Task, 'id'>) => {
+    console.log("update: ", task);
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(task),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+      const newTask: Task = await response.json();
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  // PUT: Update an existing task
+  const updateTask = async (updatedTask: Task) => {  
+    console.log("updated123: ", updatedTask);
+  
+    try {
+      const response = await fetch(`${API_URL}/${updatedTask.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTask),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update task');
+      }
+      const task: Task = await response.json();
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t.id === task.id ? task : t))
+      );
+      setEditingTask(null);
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  // DELETE: Delete a task
+  const deleteTask = async (id: string) => {
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
   return (
