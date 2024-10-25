@@ -5,12 +5,11 @@ import { Task } from '../types/task';
 
 type Props = {
   tasks: Task[];
-  onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onUpdate: (task: Task) => void; // Trigger update API call
 };
 
-export default function TaskList({ tasks, onEdit, onDelete, onUpdate }: Props) {
+export default function TaskList({ tasks, onDelete, onUpdate }: Props) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editableTitle, setEditableTitle] = useState('');
   const [editableDescription, setEditableDescription] = useState('');

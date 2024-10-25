@@ -9,7 +9,6 @@ const API_URL = 'http://localhost:3000/api/tasks'; // Backend API URL
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]); // Initialize tasks
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Fetch tasks from the backend on component mount
   useEffect(() => {
@@ -77,7 +76,6 @@ export default function Home() {
         throw new Error('Failed to update task');
       }
       console.log('Task updated successfully');
-      setEditingTask(null); // Exit edit mode
       await fetchTasks();
     } catch (error) {
       console.log("error: ", error);
@@ -112,10 +110,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="overflow-x-auto shadow-xl">
+        <div className="overflow-x-auto ">
           <TaskList
             tasks={tasks}
-            onEdit={setEditingTask}
             onDelete={deleteTask}
             onUpdate={updateTask} // Pass the updateTask function to TaskList
           />
