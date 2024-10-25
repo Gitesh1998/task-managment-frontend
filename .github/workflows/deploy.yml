@@ -27,6 +27,7 @@ jobs:
       run: |
         printf "%s" "${{ secrets.GCP_SA_KEY }}" | tr -d '\r' > $GOOGLE_APPLICATION_CREDENTIALS
         cat $GOOGLE_APPLICATION_CREDENTIALS  # Optional: Check if the content looks correct
+        jq . ${{ runner.temp }}/gcp-key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 
 
