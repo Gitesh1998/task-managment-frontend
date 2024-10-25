@@ -102,7 +102,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-300 text-black flex items-center justify-center p-6">
       <div className="bg-white p-12 rounded-3xl shadow-2xl w-full max-w-8xl min-h-[90vh]">
-        <h1 className="text-4xl font-bold mb-8 text-center">Task Management</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center">Task Management For User</h1>
 
         <div className="mb-10">
           <div className="bg-white p-6 rounded-lg shadow-xl">
