@@ -4,96 +4,49 @@ import { useState, useEffect } from 'react';
 import { Task } from './types/task';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
-
-const API_URL = 'http://localhost:3000/api/tasks'; // Backend API URL
+import {
+  fetchTasks,
+  addTask,
+  updateTask,
+  deleteTask,
+} from './api/taskService'; // Import API functions
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]); // Initialize tasks
 
   // Fetch tasks from the backend on component mount
   useEffect(() => {
-    fetchTasks();
+    loadTasks();
   }, []);
 
-  // GET: Fetch all tasks
-  const fetchTasks = async () => {
+  const loadTasks = async () => {
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
-      }
-      const data = await response.json();
-      console.log('Fetched tasks:', data.docs); // Debugging
-      setTasks(Array.isArray(data.docs) ? data.docs : []);
+      const tasks = await fetchTasks();
+      setTasks(tasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
   };
 
-  // POST or PUT: Add or Update a task
+  // Handle task submission for adding or updating a task
   const handleTaskSubmit = async (task: Omit<Task, 'id'> | Task) => {
-    if ('id' in task) {
-      // If task has an ID, it's an update
-      await updateTask(task as Task);
-    } else {
-      // If task doesn't have an ID, it's a new task
-      await addTask(task as Omit<Task, 'id'>);
-    }
-    fetchTasks(); // Refresh the task list
-  };
-
-  // POST: Add a new task
-  const addTask = async (task: Omit<Task, 'id'>) => {
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(task),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create task');
+      if ('id' in task) {
+        await updateTask(task as Task); // Update task
+      } else {
+        await addTask(task as Omit<Task, 'id'>); // Add new task
       }
-      console.log('Task added successfully');
+      loadTasks(); // Refresh the task list
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error('Error submitting task:', error);
     }
   };
 
-  // PUT: Update an existing task
-  const updateTask = async (task: Task) => {
-
+  // Handle task deletion
+  const handleDeleteTask = async (id: string) => {
     try {
-      const response = await fetch(`${API_URL}/${task.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(task),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update task');
-      }
-      console.log('Task updated successfully');
-      await fetchTasks();
-    } catch (error) {
-      console.log("error: ", error);
-
-      console.error('Error updating task:', error);
-    }
-  };
-
-  // DELETE: Delete a task
-  const deleteTask = async (id: string) => {
-    try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete task');
-      }
-      fetchTasks(); // Refresh the task list
+      await deleteTask(id);
+      loadTasks(); // Refresh the task list
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -110,11 +63,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="overflow-x-auto ">
+        <div className="overflow-x-auto">
           <TaskList
             tasks={tasks}
-            onDelete={deleteTask}
-            onUpdate={updateTask} // Pass the updateTask function to TaskList
+            onDelete={handleDeleteTask}
+            onUpdate={handleTaskSubmit} // Pass submit function to handle updates
           />
         </div>
       </div>
